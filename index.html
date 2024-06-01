@@ -22,6 +22,12 @@
             display: flex;
             align-items: center;
             padding: 0 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         header img {
@@ -43,7 +49,7 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 60px; /* Adiciona espaço para o header */
+            margin-top: 120px; /* Espaço extra para header e botões fixos */
         }
 
         h1 {
@@ -66,18 +72,24 @@
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
-            flex-wrap: wrap; /* Permite que os botões se ajustem em dispositivos móveis */
+            flex-wrap: wrap;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            background-color: #ffffff;
+            z-index: 999;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .button-container button {
-            margin: 5px; /* Reduzido para melhor ajuste */
-            padding: 10px 20px; /* Reduzido para melhor ajuste */
+            margin: 5px;
+            padding: 10px 20px;
             cursor: pointer;
             background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 14px; /* Reduzido para melhor ajuste */
+            font-size: 14px;
             transition: background-color 0.3s;
         }
 
@@ -100,7 +112,7 @@
 
         .card h2 {
             margin-top: 0;
-            font-size: 16px; /* Reduzido para melhor ajuste */
+            font-size: 16px;
             color: #333;
         }
 
@@ -127,6 +139,7 @@
 
             .container {
                 padding: 10px;
+                margin-top: 160px; /* Espaço extra para header e botões fixos em telas menores */
             }
 
             .button-container button {
@@ -146,17 +159,17 @@
         <img id="logo" src="" alt="Logo">
         <h1 id="title">Dynamic Title</h1>
     </header>
+    <div class="button-container">
+        <button id="download-btn">Download</button>
+        <button id="share-btn">Compartilhar</button>
+        <button id="gallery-btn">Galeria</button>
+    </div>
     <div class="container">
         <div class="slider" id="image-slider">
             <!-- Imagens serão carregadas aqui dinamicamente -->
         </div>
         <div id="audio-container">
             <!-- Áudio será carregado aqui dinamicamente -->
-        </div>
-        <div class="button-container">
-            <button id="download-btn">Download</button>
-            <button id="share-btn">Compartilhar</button>
-            <button id="gallery-btn">Galeria</button>
         </div>
         <div class="card-container" id="gallery-container">
             <!-- Cards serão carregados aqui dinamicamente -->
@@ -200,8 +213,8 @@
                             {
                                 breakpoint: 600,
                                 settings: {
-                                    dots: false, // Remove os pontos para telas menores
-                                    arrows: false // Remove as setas para telas menores
+                                    dots: false,
+                                    arrows: false
                                 }
                             }
                         ]
