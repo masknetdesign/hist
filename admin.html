@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +51,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Área Administrativa</h1>
@@ -91,12 +93,11 @@
         // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
-  authDomain: "avisoseeventos.firebaseapp.com",
-  databaseURL: "https://avisoseeventos-default-rtdb.firebaseio.com",
-  projectId: "avisoseeventos",
-  storageBucket: "avisoseeventos.appspot.com",
-  messagingSenderId: "247706769451",
-  appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
+            authDomain: "avisoseeventos.firebaseapp.com",
+            projectId: "avisoseeventos",
+            storageBucket: "avisoseeventos.appspot.com",
+            messagingSenderId: "247706769451",
+            appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
         };
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
@@ -114,7 +115,7 @@
         }
 
         // Manipulador de envio de informações
-        document.getElementById('submit-button').addEventListener('click', async function() {
+        document.getElementById('submit-button').addEventListener('click', async function () {
             const titleInput = document.getElementById('title-input').value.trim();
             const imageFiles = document.getElementById('image-upload').files;
             const logoFile = document.getElementById('logo-upload').files[0];
@@ -122,6 +123,7 @@
             const uploadStatus = document.getElementById('upload-status');
             uploadStatus.innerHTML = '';
 
+            // Validação de campos obrigatórios
             if (titleInput === '') {
                 uploadStatus.innerHTML = 'Por favor, insira um título.<br>';
                 return;
@@ -183,4 +185,5 @@
         });
     </script>
 </body>
+
 </html>
