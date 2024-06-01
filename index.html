@@ -95,13 +95,11 @@
         </div>
     </div>
     <div class="button-container">
+        <button id="download-btn"><i class="fas fa-download"></i></button>
+        <button id="share-btn"><i class="fas fa-share-alt"></i></button>
+        <button id="gallery-btn"><i class="fas fa-images"></i></button>
         <div id="audio-player">
             <!-- Player de Áudio será carregado aqui dinamicamente -->
-        </div>
-        <div>
-            <button id="download-btn"><i class="fas fa-download"></i></button>
-            <button id="share-btn"><i class="fas fa-share-alt"></i></button>
-            <button id="gallery-btn"><i class="fas fa-images"></i></button>
         </div>
     </div>
 
@@ -166,13 +164,18 @@
             loadAudio();
 
             $('#download-btn').on('click', function () {
-                const downloadUrl = 'https://example.com/download?entryId=' + entryData.id;
-                window.open(downloadUrl, '_blank');
+                // Cria um link temporário para o áudio e aciona o download
+                const link = document.createElement('a');
+                link.href = audioUrl;
+                link.download = 'audio.mp3';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
 
             $('#share-btn').on('click', function () {
-                const shareUrl = 'https://example.com/entry/' + entryData.id;
-                window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl), '_blank');
+                // Substitua o alerta por sua lógica de compartilhamento personalizada
+                alert('Compartilhamento de áudio em outros aplicativos...');
             });
 
             $('#gallery-btn').on('click', function () {
