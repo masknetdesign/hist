@@ -22,7 +22,6 @@
             display: flex;
             align-items: center;
             padding: 0 20px;
-            color: white;
         }
 
         header img {
@@ -34,6 +33,7 @@
         header h1 {
             margin: 0;
             font-size: 20px;
+            color: #333;
         }
 
         .container {
@@ -66,17 +66,18 @@
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
+            flex-wrap: wrap; /* Permite que os botões se ajustem em dispositivos móveis */
         }
 
         .button-container button {
-            margin: 0 10px;
-            padding: 12px 24px;
+            margin: 5px; /* Reduzido para melhor ajuste */
+            padding: 10px 20px; /* Reduzido para melhor ajuste */
             cursor: pointer;
             background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 14px; /* Reduzido para melhor ajuste */
             transition: background-color 0.3s;
         }
 
@@ -86,7 +87,7 @@
 
         .card-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             grid-gap: 20px;
         }
 
@@ -99,13 +100,44 @@
 
         .card h2 {
             margin-top: 0;
-            font-size: 18px;
+            font-size: 16px; /* Reduzido para melhor ajuste */
             color: #333;
         }
 
         .card img {
             width: 100%;
             border-radius: 5px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            header img {
+                width: 30px;
+                height: 30px;
+            }
+
+            header h1 {
+                font-size: 18px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .button-container button {
+                margin: 3px;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .card h2 {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -150,7 +182,6 @@
             $('#title').text(title);
             $('#logo').attr('src', logoUrl);
 
-            // Carregar os slides de imagens
             function loadSlides() {
                 if (imageUrls && imageUrls.length > 0) {
                     imageUrls.forEach(url => {
@@ -164,12 +195,20 @@
                         autoplay: true,
                         autoplaySpeed: 6000,
                         slidesToShow: 1,
-                        adaptiveHeight: true
+                        adaptiveHeight: true,
+                        responsive: [
+                            {
+                                breakpoint: 600,
+                                settings: {
+                                    dots: false, // Remove os pontos para telas menores
+                                    arrows: false // Remove as setas para telas menores
+                                }
+                            }
+                        ]
                     });
                 }
             }
 
-            // Carregar o áudio
             function loadAudio() {
                 if (audioUrl) {
                     $('#audio-container').html(`
@@ -184,19 +223,16 @@
             loadSlides();
             loadAudio();
 
-            // Botão de Download
             $('#download-btn').on('click', function () {
                 const downloadUrl = 'https://example.com/download?entryId=' + entryData.id;
                 window.open(downloadUrl, '_blank');
             });
 
-            // Botão de Compartilhamento
             $('#share-btn').on('click', function () {
                 const shareUrl = 'https://example.com/entry/' + entryData.id;
                 window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl), '_blank');
             });
 
-            // Botão de Galeria
             $('#gallery-btn').on('click', function () {
                 window.location.href = 'gallery.html';
             });
