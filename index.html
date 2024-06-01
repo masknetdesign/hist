@@ -80,11 +80,26 @@
         }
     
         /* Adicionando estilo para o botão do player */
-        #audio-player button {
+        #audio-player {
             position: fixed;
             bottom: 100px;
             right: 20px;
             z-index: 999;
+        }
+
+        #audio-player button {
+            padding: 10px;
+            font-size: 24px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #audio-player button:hover {
+            background-color: #0056b3;
         }
     </style>
     
@@ -199,3 +214,4 @@
 </body>
 
 </html>
+
