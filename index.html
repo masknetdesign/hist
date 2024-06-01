@@ -49,7 +49,7 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 120px; /* Espaço extra para header e botões fixos */
+            margin-top: 80px; /* Espaço extra para header fixo */
         }
 
         h1 {
@@ -66,35 +66,6 @@
             width: 100%;
             height: auto;
             border-radius: 10px;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            position: fixed;
-            top: 60px;
-            width: 100%;
-            background-color: #ffffff;
-            z-index: 999;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .button-container button {
-            margin: 5px;
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .button-container button:hover {
-            background-color: #0056b3;
         }
 
         .card-container {
@@ -121,6 +92,35 @@
             border-radius: 5px;
         }
 
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #ffffff;
+            padding: 10px 0;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .button-container button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+
         @media (max-width: 600px) {
             header {
                 flex-direction: column;
@@ -139,7 +139,7 @@
 
             .container {
                 padding: 10px;
-                margin-top: 160px; /* Espaço extra para header e botões fixos em telas menores */
+                margin-top: 100px; /* Espaço extra para header fixo */
             }
 
             .button-container button {
@@ -169,11 +169,11 @@
         <div class="card-container" id="gallery-container">
             <!-- Cards serão carregados aqui dinamicamente -->
         </div>
-        <div class="button-container">
+    </div>
+    <div class="button-container">
         <button id="download-btn">Download</button>
         <button id="share-btn">Compartilhar</button>
         <button id="gallery-btn">Galeria</button>
-    </div>
     </div>
 
     <!-- Importando jQuery -->
