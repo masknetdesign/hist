@@ -94,7 +94,7 @@
 
         .button-container {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             position: fixed;
             bottom: 0;
@@ -106,7 +106,7 @@
         }
 
         .button-container button {
-            margin: 0 10px;
+            margin: 5px 10px;
             padding: 10px 20px;
             cursor: pointer;
             background-color: #007BFF;
@@ -163,17 +163,14 @@
         <div class="slider" id="image-slider">
             <!-- Imagens serão carregadas aqui dinamicamente -->
         </div>
-        
         <div class="card-container" id="gallery-container">
             <!-- Cards serão carregados aqui dinamicamente -->
         </div>
     </div>
     <div class="button-container">
-        
-        <div id="audio-container">
-            <!-- Áudio será carregado aqui dinamicamente -->
+        <div id="audio-player">
+            <!-- Player de Áudio será carregado aqui dinamicamente -->
         </div>
-        
         <button id="download-btn">Download</button>
         <button id="share-btn">Compartilhar</button>
         <button id="gallery-btn">Galeria</button>
@@ -227,7 +224,7 @@
 
             function loadAudio() {
                 if (audioUrl) {
-                    $('#audio-container').html(`
+                    $('#audio-player').html(`
                         <audio controls>
                             <source src="${audioUrl}" type="audio/mpeg">
                             Seu navegador não suporta o elemento de áudio.
