@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área Administrativa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .input-field {
+            margin-bottom: 10px;
+        }
+
+        .input-field input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+        }
+
+        .input-field button {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .input-field button:hover {
+            background-color: #0056b3;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Área Administrativa</h1>
+        <!-- Formulário para envio de títulos -->
+        <div class="input-field">
+            <label for="title-input">Adicionar Título</label>
+            <input type="text" id="title-input" placeholder="Adicionar Título">
+        </div>
+        <!-- Formulário para envio de imagens -->
+        <div class="input-field">
+            <label for="image-upload">Enviar Imagens</label>
+            <input type="file" id="image-upload" accept="image/*" multiple>
+        </div>
+        <!-- Formulário para envio de logo -->
+        <div class="input-field">
+            <label for="logo-upload">Enviar Logo</label>
+            <input type="file" id="logo-upload" accept="image/*">
+        </div>
+        <!-- Formulário para envio de áudio -->
+        <div class="input-field">
+            <label for="audio-upload">Enviar Áudio</label>
+            <input type="file" id="audio-upload" accept="audio/mp3">
+        </div>
+        <div class="input-field">
+            <button id="submit-button">Enviar Informações</button>
+        </div>
+        <div id="upload-status"></div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Importando Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-storage.js"></script>
+    <!-- Importando jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script para inicializar o Firebase -->
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
+            authDomain: "avisoseeventos.firebaseapp.com",
+            projectId: "avisoseeventos",
+            storageBucket: "avisoseeventos.appspot.com",
+            messagingSenderId: "247706769451",
+            appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
+        };
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Referências para Firebase Storage e Firestore
+        const storage = firebase.storage();
+        const storageRef = storage.ref();
+        const firestore = firebase.firestore();
+
+        // Função para fazer upload de arquivo e retornar a URL
+        async function uploadFileAndGetUrl(file, path) {
+            const fileRef = storageRef.child(path);
+            await fileRef.put(file);
+            return await fileRef.getDownloadURL();
+        }
+
+        // Manipulador de envio de informações
+        document.getElementById('submit-button').addEventListener('click', async function() {
+            const titleInput = document.getElementById('title-input').value.trim();
+            const imageFiles = document.getElementById('image-upload').files;
+            const logoFile = document.getElementById('logo-upload').files[0];
+            const audioFile = document.getElementById('audio-upload').files[0];
+            const uploadStatus = document.getElementById('upload-status');
+            uploadStatus.innerHTML = '';
+
+            if (titleInput === '') {
+                uploadStatus.innerHTML = 'Por favor, insira um título.<br>';
+                return;
+            }
+
+            if (imageFiles.length === 0) {
+                uploadStatus.innerHTML = 'Por favor, selecione pelo menos uma imagem.<br>';
+                return;
+            }
+
+            if (!logoFile) {
+                uploadStatus.innerHTML = 'Por favor, selecione um arquivo de logo.<br>';
+                return;
+            }
+
+            if (!audioFile) {
+                uploadStatus.innerHTML = 'Por favor, selecione um arquivo de áudio.<br>';
+                return;
+            }
+
+            try {
+                // Salva o título no Firestore
+                const docRef = await firestore.collection('entries').add({
+                    title: titleInput,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                const docId = docRef.id;
+                console.log('Título salvo no Firestore com ID:', docId);
+
+                // Envio das imagens
+                const imageUrls = await Promise.all(Array.from(imageFiles).map(file => {
+                    const filePath = `images/${docId}/${file.name}`;
+                    return uploadFileAndGetUrl(file, filePath);
+                }));
+                console.log('Imagens enviadas com sucesso:', imageUrls);
+
+                // Envio do logo
+                const logoPath = `logos/${docId}/${logoFile.name}`;
+                const logoUrl = await uploadFileAndGetUrl(logoFile, logoPath);
+                console.log('Logo enviado com sucesso:', logoUrl);
+
+                // Envio do áudio
+                const audioPath = `audio/${docId}/${audioFile.name}`;
+                const audioUrl = await uploadFileAndGetUrl(audioFile, audioPath);
+                console.log('Áudio enviado com sucesso:', audioUrl);
+
+                // Atualiza o documento no Firestore com URLs das imagens, do logo e do áudio
+                await firestore.collection('entries').doc(docId).update({
+                    imageUrls: imageUrls,
+                    logoUrl: logoUrl,
+                    audioUrl: audioUrl
+                });
+                console.log('URLs atualizadas no Firestore para o documento:', docId);
+                uploadStatus.innerHTML = 'Informações enviadas com sucesso!';
+            } catch (error) {
+                console.error('Erro ao enviar informações:', error);
+                uploadStatus.innerHTML = `Erro ao enviar informações: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

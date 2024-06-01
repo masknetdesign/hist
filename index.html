@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <!-- Importando Slick Carousel CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Estilos do header */
+        header {
+            height: 60px;
+            background-color:   #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+        }
+
+        header img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden; /* Oculta a barra de rolagem */
+            margin-top: 60px; /* Adiciona espaço para o header */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .slider {
+            margin-bottom: 20px;
+        }
+
+        .slider img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            z-index: 999; /* Garante que os botões fiquem acima de outros elementos */
+        }
+
+        .button-container button {
+            margin: 0 10px;
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img id="logo" src="" alt="Logo">
+        <h1 id="title">Dynamic Title</h1>
+        <!---<input type="text" placeholder="Search" id="search-input">--->
+    </header>
+    <div class="container">
+        <div class="slider" id="image-slider">
+            <!-- Imagens serão carregadas aqui dinamicamente -->
+        </div>
+        <div id="audio-container">
+            <!-- Áudio será carregado aqui dinamicamente -->
+        </div>
+        <!-- Botões de Download, Compartilhamento e Player de Áudio -->
+        <div class="button-container">
+            <button id="download-btn">Download</button>
+            <button id="share-btn">Compartilhar</button>
+            <button id="gallery-btn">Galeria</button>
+            <!-- Player de Áudio -->
+            <div id="audio-player">
+                <!-- Áudio será carregado aqui dinamicamente -->
+            </div>
+        </div>
+        <!-- Container para os cards da galeria -->
+        <div class="card-container" id="gallery-container">
+            <!-- Cards serão carregados aqui dinamicamente -->
+        </div>
+    </div>
+
+    <!-- Importando jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Importando Slick Carousel JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <!-- Script para carregar os dados e inicializar o slide -->
+    <script>
+        $(document).ready(function () {
+            const entryData = JSON.parse(localStorage.getItem('selectedEntry'));
+            if (!entryData) {
+                alert('Nenhum dado encontrado.');
+                return;
+            }
+
+            const { title, imageUrls, audioUrl, logoUrl } = entryData;
+
+            document.title = title;
+
+            // Carregar o título e a logo dinamicamente
+            $('#title').text(title);
+            $('#logo').attr('src', logoUrl);
+
+            // Função para carregar os slides de imagens
+            function loadSlides() {
+                if (imageUrls && imageUrls.length > 0) {
+                    imageUrls.forEach(url => {
+                        $('#image-slider').append(`<div><img src="${url}" alt="Imagem"></div>`);
+                    });
+
+                    // Inicializa o Slick Carousel após adicionar as imagens
+                    $('#image-slider').slick({
+                        dots: true,
+                        infinite: true,
+                        speed: 1000, // Velocidade de transição (1 segundo)
+                        autoplay: true, // Ativar autoplay
+                        autoplaySpeed: 6000, // Tempo de exibição de cada imagem (6 segundos)
+                        slidesToShow: 1,
+                        adaptiveHeight: true
+                    });
+                }
+            }
+
+            // Função para carregar o áudio
+            function loadAudio() {
+                if (audioUrl) {
+                    $('#audio-container').html(`
+                        <audio controls>
+                            <source src="${audioUrl}" type="audio/mpeg">
+                            Seu navegador não suporta o elemento de áudio.
+                        </audio>
+                    `);
+                }
+            }
+
+            // Carrega os slides de imagens e o áudio
+            loadSlides();
+            loadAudio();
+
+            // Botão de Download
+            $('#download-btn').on('click', function () {
+                // Simulação de download
+                const downloadUrl = 'https://example.com/download?entryId=' + entryData.id;
+window.open(downloadUrl, '_blank');
+});
+        // Botão de Compartilhamento
+        $('#share-btn').on('click', function () {
+            // Simulação de compartilhamento
+            const shareUrl = 'https://example.com/entry/' + entryData.id;
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl), '_blank');
+        });
+
+        // Botão de Galeria
+        $('#gallery-btn').on('click', function () {
+            // Redirecionar para a página da galeria
+            window.location.href = 'gallery.html';
+        });
+    });
+</script>
+

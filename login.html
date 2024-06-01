@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro e Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2 id="login-header">Login</h2>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="E-mail" required>
+            <input type="password" id="login-password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+            <p id="login-message" class="message"></p>
+            <p>Ainda não tem uma conta? <a href="#" id="toggle-signup">Cadastre-se aqui</a>.</p>
+        </form>
+        
+        <h2>Cadastro</h2>
+        <form id="signup-form">
+            <input type="email" id="signup-email" placeholder="E-mail" required>
+            <input type="password" id="signup-password" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
+            <p id="signup-message" class="message"></p>
+            <p>Já tem uma conta? <a href="#" id="toggle-login">Faça login aqui</a>.</p>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>
