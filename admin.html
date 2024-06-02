@@ -75,6 +75,11 @@
             <label for="audio-upload">Enviar Áudio</label>
             <input type="file" id="audio-upload" accept="audio/mp3">
         </div>
+        <!-- Formulário para envio de vídeos -->
+        <div class="input-field">
+            <label for="video-upload">Enviar Vídeos</label>
+            <input type="file" id="video-upload" accept="video/*" multiple>
+        </div>
         <div class="input-field">
             <button id="submit-button">Enviar Informações</button>
         </div>
@@ -92,13 +97,12 @@
     <script>
         // Configuração do Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyCIwk4I4_nrmnkPp7QikXaf-R5WKQtcxYU",
-  authDomain: "chatbootff.firebaseapp.com",
-  databaseURL: "https://chatbootff-default-rtdb.firebaseio.com",
-  projectId: "chatbootff",
-  storageBucket: "chatbootff.appspot.com",
-  messagingSenderId: "831239545",
-  appId: "1:831239545:web:d86bf73a0a9060e3bd6ba8"
+            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
+            authDomain: "avisoseeventos.firebaseapp.com",
+            projectId: "avisoseeventos",
+            storageBucket: "avisoseeventos.appspot.com",
+            messagingSenderId: "247706769451",
+            appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
         };
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
@@ -121,6 +125,7 @@
             const imageFiles = document.getElementById('image-upload').files;
             const logoFile = document.getElementById('logo-upload').files[0];
             const audioFile = document.getElementById('audio-upload').files[0];
+            const videoFiles = document.getElementById('video-upload').files;
             const uploadStatus = document.getElementById('upload-status');
             uploadStatus.innerHTML = '';
 
@@ -142,6 +147,11 @@
 
             if (!audioFile) {
                 uploadStatus.innerHTML = 'Por favor, selecione um arquivo de áudio.<br>';
+                return;
+            }
+
+            if (videoFiles.length === 0) {
+                uploadStatus.innerHTML = 'Por favor, selecione pelo menos um vídeo.<br>';
                 return;
             }
 
@@ -171,11 +181,19 @@
                 const audioUrl = await uploadFileAndGetUrl(audioFile, audioPath);
                 console.log('Áudio enviado com sucesso:', audioUrl);
 
-                // Atualiza o documento no Firestore com URLs das imagens, do logo e do áudio
+                // Envio dos vídeos
+                const videoUrls = await Promise.all(Array.from(videoFiles).map(file => {
+                    const filePath = `videos/${docId}/${file.name}`;
+                    return uploadFileAndGetUrl(file, filePath);
+                }));
+                console.log('Vídeos enviados com sucesso:', videoUrls);
+
+                // Atualiza o documento no Firestore com URLs das imagens, do logo, do áudio e dos vídeos
                 await firestore.collection('entries').doc(docId).update({
                     imageUrls: imageUrls,
                     logoUrl: logoUrl,
-                    audioUrl: audioUrl
+                    audioUrl: audioUrl,
+                    videoUrls: videoUrls
                 });
                 console.log('URLs atualizadas no Firestore para o documento:', docId);
                 uploadStatus.innerHTML = 'Informações enviadas com sucesso!';
