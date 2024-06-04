@@ -10,12 +10,35 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .container {
+            flex: 1;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+        }
+
+        .header {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            background-color: #f1f1f1;
+        }
+
+        .header .logo {
+            height: 40px;
+        }
+
+        .header .favorite-icon img,
+        .header .search-icon img,
+        .header .profile-icon img {
+            height: 20px;
         }
 
         .list {
@@ -45,40 +68,6 @@
         .list-item img {
             max-width: 50px;
             border-radius: 5px;
-        }
-
-        .header {
-            height: 50px;
-            background-color: #C13131;
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .title {
-            font-size: 20px;
-            margin-right: auto;
-        }
-
-        .favorite-icon {
-            margin-left: 20px;
-            cursor: pointer;
-        }
-
-        .search-icon {
-            margin-left: 20px;
-            cursor: pointer;
-        }
-        .logo{
-            width: 40px;
-            height: 40px;
-        }
-
-        .favorite-icon img,
-        .search-icon img {
-            width: 24px;
-            height: 24px;
         }
 
         #video-modal {
@@ -116,25 +105,70 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        .footer {
+            height: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #f1f1f1;
+        }
+
+        .footer img {
+            height: 32px;
+        }
+
+        .search-input {
+            display: none;
+            height: 30px;
+            margin-left: 10px;
+            padding: 0 10px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .favorite-icon-modal img {
+            height: 20px; /* Defina o tamanho desejado para o ícone dentro do modal */
+        }
+
+        #favorite-button img {
+            max-width: 24px; /* Define o tamanho máximo do ícone */
+        }
+
     </style>
 </head>
 
 <body>
     <div class="header">
         <img src="images/logo.png" alt="Logo" class="logo">
-        <div class="favorite-icon">
-            <img src="favorite-icon.png" alt="Favorite Icon">
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar...">
+            <div class="search-icon">
+                <img src="images/search-icon.png" alt="Search Icon" id="search-icon">
+            </div>
         </div>
-        <div class="search-icon">
-            <img src="images/search.png" alt="Search Icon">
+        <div class="favorite-icon">
+            <img src="images/favorite-icon.png" alt="Favorite Icon" id="favorite-icon">
+        </div>
+        <div class="profile-icon">
+            <img src="images/profile-icon.png" alt="Profile Icon">
         </div>
     </div>
-    
 
     <div class="container">
+        <h1>Histórias Narradas</h1>
         <ul class="list" id="result-list">
             <!-- Resultados serão carregados aqui dinamicamente -->
         </ul>
+    </div>
+
+    <div class="footer">
+        <a href="home.html"><img src="images/home-icon.png" alt="Home"></a>
+        <a href="login.html"><img src="images/profile-icon.png" alt="Profile"></a>
+        <a href="favorites.html"><img src="images/favorite-icon.png" alt="Favorites"></a>
     </div>
 
     <div id="video-modal">
@@ -143,7 +177,12 @@
                 <source id="video-source" src="" type="video/mp4">
                 Seu navegador não suporta o elemento de vídeo.
             </video>
-            <button id="close-button">Fechar</button>
+            <div class="modal-actions">
+                <button id="favorite-button" class="favorite-button">
+                    <img src="images/favorite-icon.png" alt="Favorite Icon">
+                </button>
+                <button id="close-button">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -155,16 +194,19 @@
     <script>
         // Configuração do Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
+            apiKey: "API_KEY_HERE",
             authDomain: "avisoseeventos.firebaseapp.com",
             projectId: "avisoseeventos",
             storageBucket: "avisoseeventos.appspot.com",
             messagingSenderId: "247706769451",
             appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
         };
+
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
+
+        let allResults = [];
 
         // Função para carregar os resultados do Firestore
         function loadResults() {
@@ -177,68 +219,141 @@
                     resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
                     return;
                 }
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const title = data.title;
+                allResults = querySnapshot.docs.map(doc => doc.data());
 
-                    let videoUrl = '';
-                    if (data.videoUrls && data.videoUrls.length > 0) {
-                        videoUrl = data.videoUrls[0];
-                    }
-
-                    let logoUrl = '';
-                    if (data.logoUrl) {
-                        logoUrl = data.logoUrl;
-                    }
-
-                    resultList.innerHTML += `
-                        <li class="list-item" data-video-url="${videoUrl}">
-                            <img src="${logoUrl}" alt="Logo">
-                            <span>${title}</span>
-                        </li>`;
-                });
-
-                // Adiciona manipuladores de eventos aos itens da lista
-                const listItems = document.querySelectorAll('.list-item');
-                listItems.forEach(item => {
-                    item.addEventListener('click', function () {
-                        const videoUrl = this.getAttribute('data-video-url');
-                        if (videoUrl) {
-                            showModal(videoUrl);
-                        } else {
-                            alert('URL do vídeo não encontrada.');
-                        }
-                    });
-                });
+                renderResults(allResults);
             }).catch((error) => {
                 console.error('Erro ao carregar os resultados:', error);
             });
         }
 
-        // Função para exibir o modal de vídeo
-        function showModal(videoUrl) {
-            const videoSource = document.getElementById('video-source');
-            const videoPlayer = document.getElementById('video-player');
-            videoSource.src = videoUrl;
-            videoPlayer.load(); // Carrega o novo vídeo
-            const videoModal = document.getElementById('video-modal');
-            videoModal.style.display = 'block';
+        // Função para renderizar os
+        function renderResults(results) {
+    const resultList = document.getElementById('result-list');
+    resultList.innerHTML = '';
+    results.forEach(data => {
+        const title = data.title;
+
+        let videoUrl = '';
+        if (data.videoUrls && data.videoUrls.length > 0) {
+            videoUrl = data.videoUrls[0];
         }
 
-        // Função para fechar o modal de vídeo
-        function closeModal() {
-            const videoModal = document.getElementById('video-modal');
-            videoModal.style.display = 'none';
-            const videoSource = document.getElementById('video-source');
-            videoSource.src = '';
+        let logoUrl = '';
+        if (data.logoUrl) {
+            logoUrl = data.logoUrl;
         }
 
-        // Aguarda o carregamento do DOM antes de chamar a função loadResults
-        document.addEventListener('DOMContentLoaded', loadResults);
+        resultList.innerHTML += `
+            <li class="list-item" data-video-url="${videoUrl}">
+                <img src="${logoUrl}" alt="Logo">
+                <span>${title}</span>
+            </li>`;
+    });
 
-        // Adiciona manipulador de evento ao botão de fechar
-        document.getElementById('close-button').addEventListener('click', closeModal);
-    </script>
+    // Adiciona manipuladores de eventos aos itens da lista
+    const listItems = document.querySelectorAll('.list-item');
+    listItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const videoUrl = this.getAttribute('data-video-url');
+            if (videoUrl) {
+                showModal(videoUrl);
+            } else {
+                alert('URL do vídeo não encontrada.');
+            }
+        });
+    });
+}
+
+// Função para exibir o modal de vídeo
+function showModal(videoUrl) {
+    const videoSource = document.getElementById('video-source');
+    const videoPlayer = document.getElementById('video-player');
+    videoSource.src = videoUrl;
+    videoPlayer.load(); // Carrega o novo vídeo
+    const videoModal = document.getElementById('video-modal');
+    videoModal.style.display = 'block';
+}
+
+// Função para fechar o modal de vídeo
+function closeModal() {
+    const videoModal = document.getElementById('video-modal');
+    videoModal.style.display = 'none';
+    const videoSource = document.getElementById('video-source');
+    videoSource.src = '';
+}
+
+// Função para adicionar ou remover vídeo dos favoritos
+function toggleFavorite(videoUrl) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert('Você precisa estar logado para adicionar aos favoritos.');
+        return;
+    }
+
+    const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
+
+    favoriteRef.get().then((docSnapshot) => {
+        if (docSnapshot.exists) {
+            // Remover dos favoritos se já estiver favoritado
+            favoriteRef.delete().then(() => {
+                console.log('Vídeo removido dos favoritos.');
+                document.getElementById('favorite-button').classList.remove('favorited');
+            }).catch((error) => {
+                console.error('Erro ao remover vídeo dos favoritos:', error);
+            });
+        } else {
+            // Adicionar aos favoritos se não estiver favoritado
+            favoriteRef.set({ videoUrl: videoUrl }).then(() => {
+                console.log('Vídeo adicionado aos favoritos.');
+                document.getElementById('favorite-button').classList.add('favorited');
+            }).catch((error) => {
+                console.error('Erro ao adicionar vídeo aos favoritos:', error);
+            });
+        }
+    });
+}
+
+// Adiciona manipulador de evento ao botão de favoritar dentro do modal
+document.getElementById('favorite-button').addEventListener('click', function () {
+    const videoUrl = document.getElementById('video-source').getAttribute('src');
+    toggleFavorite(videoUrl);
+});
+
+// Aguarda o carregamento do DOM antes de chamar a função loadResults
+document.addEventListener('DOMContentLoaded', loadResults);
+
+// Adiciona manipulador de evento ao botão de fechar
+document.getElementById('close-button').addEventListener('click', closeModal);
+
+// Adiciona manipulador de evento ao ícone de busca
+document.getElementById('search-icon').addEventListener('click', function () {
+    const searchTerm = prompt('Digite o termo de busca:');
+    if (searchTerm) {
+        const filteredResults = allResults.filter(data =>
+            data.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        renderResults(filteredResults);
+    }
+});
+
+// Adiciona manipulador de evento ao ícone de perfil
+document.getElementById('profile-icon').addEventListener('click', function () {
+    window.location.href = 'login.html';
+});
+
+// Adiciona manipulador de evento ao ícone de favoritos
+document.getElementById('favorite-icon').addEventListener('click', function () {
+    window.location.href = 'favorites.html';
+});
+
+// Adiciona manipulador de evento ao botão de favoritos dentro do modal
+document.getElementById('favorite-button').addEventListener('click', function () {
+    // Adicione aqui a lógica para favoritar o vídeo
+    alert('Vídeo favoritado!');
+});
+</script>
+
 </body>
 
 </html>
