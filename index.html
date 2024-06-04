@@ -49,7 +49,7 @@
         .list {
             list-style-type: none;
             padding: 0;
-            margin-top: 50px; /* Adiciona margem superior para conteúdo não ficar atrás do cabeçalho */
+            margin-top: 50px;
         }
 
         .list-item {
@@ -142,13 +142,16 @@
         }
 
         .favorite-icon-modal img {
-            height: 20px; /* Defina o tamanho desejado para o ícone dentro do modal */
+            height: 20px;
         }
 
         #favorite-button img {
-            max-width: 24px; /* Define o tamanho máximo do ícone */
+            max-width: 24px;
         }
 
+        .favorited img {
+            filter: invert(84%) sepia(95%) saturate(2136%) hue-rotate(1deg) brightness(106%) contrast(104%);
+        }
     </style>
 </head>
 
@@ -196,35 +199,37 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Scripts -->
     <!-- Importando Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
+    <!-- Importando Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+
     <!-- Script para inicializar o Firebase e carregar os resultados -->
     <script>
         // Configuração do Firebase
         const firebaseConfig = {
-            apiKey: "API_KEY_HERE",
+            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
             authDomain: "avisoseeventos.firebaseapp.com",
             projectId: "avisoseeventos",
             storageBucket: "avisoseeventos.appspot.com",
             messagingSenderId: "247706769451",
             appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
         };
-    
+
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
-    
+
         let allResults = [];
-    
+
         // Função para carregar os resultados do Firestore
         function loadResults() {
             const resultList = document.getElementById('result-list');
             resultList.innerHTML = '';
-    
+
             // Carrega os documentos da coleção 'entries'
             firestore.collection('entries').get().then((querySnapshot) => {
                 if (querySnapshot.empty) {
@@ -232,37 +237,37 @@
                     return;
                 }
                 allResults = querySnapshot.docs.map(doc => doc.data());
-    
+
                 renderResults(allResults);
             }).catch((error) => {
                 console.error('Erro ao carregar os resultados:', error);
             });
         }
-    
+
         // Função para renderizar os resultados
         function renderResults(results) {
             const resultList = document.getElementById('result-list');
             resultList.innerHTML = '';
             results.forEach(data => {
                 const title = data.title;
-    
+
                 let videoUrl = '';
                 if (data.videoUrls && data.videoUrls.length > 0) {
                     videoUrl = data.videoUrls[0];
                 }
-    
+
                 let logoUrl = '';
                 if (data.logoUrl) {
                     logoUrl = data.logoUrl;
                 }
-    
+
                 resultList.innerHTML += `
                     <li class="list-item" data-video-url="${videoUrl}">
                         <img src="${logoUrl}" alt="Logo">
                         <span>${title}</span>
                     </li>`;
             });
-    
+
             // Adiciona manipuladores de eventos aos itens da lista
             const listItems = document.querySelectorAll('.list-item');
             listItems.forEach(item => {
@@ -276,7 +281,7 @@
                 });
             });
         }
-    
+
         // Função para exibir o modal de vídeo
         function showModal(videoUrl) {
             const videoSource = document.getElementById('video-source');
@@ -285,8 +290,11 @@
             videoPlayer.load(); // Carrega o novo vídeo
             const videoModal = document.getElementById('video-modal');
             videoModal.style.display = 'block';
+
+            // Verifica se o vídeo está nos favoritos
+            checkFavoriteStatus(videoUrl);
         }
-    
+
         // Função para fechar o modal de vídeo
         function closeModal() {
             const videoModal = document.getElementById('video-modal');
@@ -294,7 +302,7 @@
             const videoSource = document.getElementById('video-source');
             videoSource.src = '';
         }
-    
+
         // Função para adicionar ou remover vídeo dos favoritos
         function toggleFavorite(videoUrl) {
             const user = firebase.auth().currentUser;
@@ -302,9 +310,9 @@
                 alert('Você precisa estar logado para adicionar aos favoritos.');
                 return;
             }
-    
+
             const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
-    
+
             favoriteRef.get().then((docSnapshot) => {
                 if (docSnapshot.exists) {
                     // Remover dos favoritos se já estiver favoritado
@@ -329,16 +337,36 @@
                 console.error('Erro ao verificar o status do favorito:', error);
             });
         }
-    
+
+        // Função para verificar se o vídeo está nos favoritos
+        function checkFavoriteStatus(videoUrl) {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                return;
+            }
+
+            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
+
+            favoriteRef.get().then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    document.getElementById('favorite-button').classList.add('favorited');
+                } else {
+                    document.getElementById('favorite-button').classList.remove('favorited');
+                }
+            }).catch((error) => {
+                console.error('Erro ao verificar o status do favorito:', error);
+            });
+        }
+
         // Adiciona manipulador de evento ao botão de favoritar dentro do modal
         document.getElementById('favorite-button').addEventListener('click', function () {
             const videoUrl = document.getElementById('video-source').getAttribute('src');
             toggleFavorite(videoUrl);
         });
-    
+
         // Aguarda o carregamento do DOM antes de chamar a função loadResults
         document.addEventListener('DOMContentLoaded', loadResults);
-    
+
         // Adiciona manipulador de evento ao botão de fechar
         document.getElementById('close-button').addEventListener('click', closeModal);
         // Adiciona manipulador de evento ao ícone de busca
@@ -351,18 +379,18 @@
                 renderResults(filteredResults);
             }
         });
-    
+
         // Adiciona manipulador de evento ao ícone de perfil
         document.getElementById('profile-icon').addEventListener('click', function () {
             window.location.href = 'login.html';
         });
-    
+
         // Adiciona manipulador de evento ao ícone de favoritos
         document.getElementById('favorite-icon').addEventListener('click', function () {
             window.location.href = 'favorites.html';
         });
-    
+
     </script>
 </body>
 
-</html>
+</html>
