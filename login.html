@@ -1,11 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Login</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        p.message {
+            margin-top: 10px;
+            color: #dc3545;
+        }
+
+        p.link {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        p.link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        p.link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <h2 id="login-header">Login</h2>
@@ -14,16 +81,16 @@
             <input type="password" id="login-password" placeholder="Senha" required>
             <button type="submit">Entrar</button>
             <p id="login-message" class="message"></p>
-            <p>Ainda não tem uma conta? <a href="#" id="toggle-signup">Cadastre-se aqui</a>.</p>
+            <p class="link">Ainda não tem uma conta? <a href="#" id="toggle-signup">Cadastre-se aqui</a>.</p>
         </form>
-        
-        <h2>Cadastro</h2>
-        <form id="signup-form">
+
+        <h2 id="signup-header" style="display: none;">Cadastro</h2>
+        <form id="signup-form" style="display: none;">
             <input type="email" id="signup-email" placeholder="E-mail" required>
             <input type="password" id="signup-password" placeholder="Senha" required>
             <button type="submit">Cadastrar</button>
             <p id="signup-message" class="message"></p>
-            <p>Já tem uma conta? <a href="#" id="toggle-login">Faça login aqui</a>.</p>
+            <p class="link">Já tem uma conta? <a href="#" id="toggle-login">Faça login aqui</a>.</p>
         </form>
     </div>
 
@@ -31,6 +98,81 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
 
-    <script src="app.js"></script>
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
+            authDomain: "avisoseeventos.firebaseapp.com",
+            projectId: "avisoseeventos",
+            storageBucket: "avisoseeventos.appspot.com",
+            messagingSenderId: "247706769451",
+            appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Referências aos elementos do DOM
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const toggleSignupLink = document.getElementById('toggle-signup');
+        const toggleLoginLink = document.getElementById('toggle-login');
+        const loginMessage = document.getElementById('login-message');
+        const signupMessage = document.getElementById('signup-message');
+
+        // Função para alternar entre formulários de login e cadastro
+        toggleSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'block';
+        });
+
+        toggleLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+
+        // Função para login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Login bem-sucedido
+                    loginMessage.textContent = 'Login bem-sucedido!';
+                    window.location.href = 'details.html';
+                })
+                .catch((error) => {
+                    // Erro no login
+                    loginMessage.textContent = 'Erro no login: ' + error.message;
+                })
+                .catch((error) => {
+                    // Erro no login
+                    loginMessage.textContent = 'Erro no login: ' + error.message;
+                });
+        });
+
+        // Função para cadastro
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Cadastro bem-sucedido
+                    signupMessage.textContent = 'Cadastro bem-sucedido!';
+                    window.location.href = 'details.html';
+                })
+                .catch((error) => {
+                    // Erro no cadastro
+                    signupMessage.textContent = 'Erro no cadastro: ' + error.message;
+                });
+        });
+    </script>
 </body>
+
 </html>
