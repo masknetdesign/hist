@@ -39,8 +39,11 @@
         .header .logo {
             height: 40px;
         }
+        .logout-icon{
+            margin-right: -100px;
+        }
 
-        .header .favorite-icon img,
+        .header .logout-icon img,
         .header .search-icon img,
         .header .profile-icon img {
             height: 20px;
@@ -164,8 +167,8 @@
                 <img src="images/search-icon.png" alt="Search Icon" id="search-icon">
             </div>
         </div>
-        <div class="favorite-icon">
-            <img src="images/favorite-icon.png" alt="Favorite Icon" id="favorite-icon">
+        <div class="logout-icon">
+            <img src="images/logout-icon.png" alt="Logout Icon" id="Logout-icon">
         </div>
         <div class="profile-icon">
             <img src="images/profile-icon.png" alt="Profile Icon">
@@ -180,7 +183,7 @@
     </div>
 
     <div class="footer">
-        <a href="home.html"><img src="images/home-icon.png" alt="Home"></a>
+        <a href="details.html"><img src="images/home-icon.png" alt="Home"></a>
         <a href="login.html"><img src="images/profile-icon.png" alt="Profile"></a>
         <a href="favorites.html"><img src="images/favorite-icon.png" alt="Favorites"></a>
     </div>
@@ -226,23 +229,30 @@
         let allResults = [];
 
         // Função para carregar os resultados do Firestore
-        function loadResults() {
-            const resultList = document.getElementById('result-list');
-            resultList.innerHTML = '';
+function loadResults() {
+    const resultList = document.getElementById('result-list');
+    resultList.innerHTML = '';
 
-            // Carrega os documentos da coleção 'entries'
-            firestore.collection('entries').get().then((querySnapshot) => {
-                if (querySnapshot.empty) {
-                    resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
-                    return;
-                }
-                allResults = querySnapshot.docs.map(doc => doc.data());
-
-                renderResults(allResults);
-            }).catch((error) => {
-                console.error('Erro ao carregar os resultados:', error);
-            });
+    // Carrega os documentos da coleção 'entries'
+    firestore.collection('entries').get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
+            return;
         }
+        allResults = querySnapshot.docs.map(doc => doc.data());
+
+        renderResults(allResults);
+
+        // Adiciona manipulador de evento ao ícone de favoritos dentro do modal
+        document.getElementById('favorite-button').addEventListener('click', function () {
+            const videoUrl = document.getElementById('video-source').getAttribute('src');
+            toggleFavorite(videoUrl);
+        });
+    }).catch((error) => {
+        console.error('Erro ao carregar os resultados:', error);
+    });
+}
+
 
         // Função para renderizar os resultados
         function renderResults(results) {
@@ -284,16 +294,17 @@
 
         // Função para exibir o modal de vídeo
         function showModal(videoUrl) {
-            const videoSource = document.getElementById('video-source');
-            const videoPlayer = document.getElementById('video-player');
-            videoSource.src = videoUrl;
-            videoPlayer.load(); // Carrega o novo vídeo
-            const videoModal = document.getElementById('video-modal');
-            videoModal.style.display = 'block';
+        const videoSource = document.getElementById('video-source');
+        const videoPlayer = document.getElementById('video-player');
+        videoSource.src = videoUrl;
+        videoPlayer.load(); // Carrega o novo vídeo
+        const videoModal = document.getElementById('video-modal');
+        videoModal.style.display = 'block';
 
-            // Verifica se o vídeo está nos favoritos
-            checkFavoriteStatus(videoUrl);
-        }
+    // Verifica se o vídeo está nos favoritos
+    checkFavoriteStatus(videoUrl);
+}
+
 
         // Função para fechar o modal de vídeo
         function closeModal() {
@@ -303,66 +314,45 @@
             videoSource.src = '';
         }
 
-        // Função para adicionar ou remover vídeo dos favoritos
-        function toggleFavorite(videoUrl) {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                alert('Você precisa estar logado para adicionar aos favoritos.');
-                return;
-            }
-
-            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
-
-            favoriteRef.get().then((docSnapshot) => {
-                if (docSnapshot.exists) {
-                    // Remover dos favoritos se já estiver favoritado
-                    console.log('O vídeo já está nos favoritos. Removendo...');
-                    favoriteRef.delete().then(() => {
-                        console.log('Vídeo removido dos favoritos.');
-                        document.getElementById('favorite-button').classList.remove('favorited');
-                    }).catch((error) => {
-                        console.error('Erro ao remover vídeo dos favoritos:', error);
-                    });
-                } else {
-                    // Adicionar aos favoritos se não estiver favoritado
-                    console.log('O vídeo não está nos favoritos. Adicionando...');
-                    favoriteRef.set({ videoUrl: videoUrl }).then(() => {
-                        console.log('Vídeo adicionado aos favoritos.');
-                        document.getElementById('favorite-button').classList.add('favorited');
-                    }).catch((error) => {
-                        console.error('Erro ao adicionar vídeo aos favoritos:', error);
-                    });
-                }
-            }).catch((error) => {
-                console.error('Erro ao verificar o status do favorito:', error);
-            });
-        }
-
         // Função para verificar se o vídeo está nos favoritos
-        function checkFavoriteStatus(videoUrl) {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                return;
-            }
+function checkFavoriteStatus(videoUrl) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        return;
+    }
 
-            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
+    const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
 
-            favoriteRef.get().then((docSnapshot) => {
-                if (docSnapshot.exists) {
-                    document.getElementById('favorite-button').classList.add('favorited');
-                } else {
-                    document.getElementById('favorite-button').classList.remove('favorited');
-                }
-            }).catch((error) => {
-                console.error('Erro ao verificar o status do favorito:', error);
-            });
+    favoriteRef.get().then((docSnapshot) => {
+        if (docSnapshot.exists) {
+            document.getElementById('favorite-button').classList.add('favorited');
+        } else {
+            document.getElementById('favorite-button').classList.remove('favorited');
         }
+    }).catch((error) => {
+        console.error('Erro ao verificar o status do favorito:', error);
+    });
+}
 
-        // Adiciona manipulador de evento ao botão de favoritar dentro do modal
-        document.getElementById('favorite-button').addEventListener('click', function () {
-            const videoUrl = document.getElementById('video-source').getAttribute('src');
-            toggleFavorite(videoUrl);
-        });
+// Função para exibir o modal de vídeo
+function showModal(videoUrl) {
+    const videoSource = document.getElementById('video-source');
+    const videoPlayer = document.getElementById('video-player');
+    videoSource.src = videoUrl;
+    videoPlayer.load(); // Carrega o novo vídeo
+    const videoModal = document.getElementById('video-modal');
+    videoModal.style.display = 'block';
+
+    // Verifica se o vídeo está nos favoritos
+    checkFavoriteStatus(videoUrl);
+}
+
+// Adiciona manipulador de evento ao ícone de favoritos dentro do modal
+document.getElementById('favorite-button').addEventListener('click', function () {
+    const videoUrl = document.getElementById('video-source').getAttribute('src');
+    toggleFavorite(videoUrl);
+});
+
 
         // Aguarda o carregamento do DOM antes de chamar a função loadResults
         document.addEventListener('DOMContentLoaded', loadResults);
