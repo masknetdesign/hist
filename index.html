@@ -39,9 +39,6 @@
         .header .logo {
             height: 40px;
         }
-        .logout-icon{
-            margin-right: -100px;
-        }
 
         .header .logout-icon img,
         .header .search-icon img,
@@ -167,8 +164,8 @@
                 <img src="images/search-icon.png" alt="Search Icon" id="search-icon">
             </div>
         </div>
-        <div class="logout-icon">
-            <img src="images/logout-icon.png" alt="Logout Icon" id="Logout-icon">
+        <div class="logout-icon" id="logout-icon">
+            <img src="images/logout-icon.png" alt="Logout Icon">
         </div>
         <div class="profile-icon">
             <img src="images/profile-icon.png" alt="Profile Icon">
@@ -205,12 +202,10 @@
 
     <!-- Scripts -->
     <!-- Importando Firebase SDK -->
-    <!-- Importando Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
 
-    <!-- Script para inicializar o Firebase e carregar os resultados -->
     <script>
         // Configuração do Firebase
         const firebaseConfig = {
@@ -228,31 +223,60 @@
 
         let allResults = [];
 
-        // Função para carregar os resultados do Firestore
-function loadResults() {
-    const resultList = document.getElementById('result-list');
-    resultList.innerHTML = '';
-
-    // Carrega os documentos da coleção 'entries'
-    firestore.collection('entries').get().then((querySnapshot) => {
-        if (querySnapshot.empty) {
-            resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
-            return;
+        // Função para verificar se o usuário está autenticado
+function checkUserAuth() {
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            // O usuário está autenticado, permaneça na página
+            console.log("Usuário autenticado:", user);
+        } else {
+            // O usuário não está autenticado, redirecione para a página de login
+            console.log("Usuário não autenticado. Redirecionando para a página de login...");
+            window.location.href = "login.html";
         }
-        allResults = querySnapshot.docs.map(doc => doc.data());
 
-        renderResults(allResults);
-
-        // Adiciona manipulador de evento ao ícone de favoritos dentro do modal
-        document.getElementById('favorite-button').addEventListener('click', function () {
-            const videoUrl = document.getElementById('video-source').getAttribute('src');
-            toggleFavorite(videoUrl);
+        // Adiciona manipulador de evento ao ícone de logout
+        document.getElementById('logout-icon').addEventListener('click', function () {
+            firebase.auth().signOut().then(() => {
+                console.log('Usuário deslogado com sucesso.');
+            }).catch((error) => {
+                console.error('Erro ao deslogar:', error);
+            });
         });
-    }).catch((error) => {
-        console.error('Erro ao carregar os resultados:', error);
     });
 }
 
+// Executa a verificação de autenticação do usuário ao carregar o DOM
+document.addEventListener("DOMContentLoaded", checkUserAuth);
+
+
+        // Executa a verificação de autenticação do usuário ao carregar o DOM
+        document.addEventListener("DOMContentLoaded", checkUserAuth);
+
+        // Função para carregar os resultados do Firestore
+        function loadResults() {
+            const resultList = document.getElementById('result-list');
+            resultList.innerHTML = '';
+
+            // Carrega os documentos da coleção 'entries'
+            firestore.collection('entries').get().then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
+                    return;
+                }
+                allResults = querySnapshot.docs.map(doc => doc.data());
+
+                renderResults(allResults);
+
+                // Adiciona manipulador de evento ao ícone de favoritos dentro do modal
+                document.getElementById('favorite-button').addEventListener('click', function () {
+                    const videoUrl = document.getElementById('video-source').getAttribute('src');
+                    toggleFavorite(videoUrl);
+                });
+            }).catch((error) => {
+                console.error('Erro ao carregar os resultados:', error);
+            });
+        }
 
         // Função para renderizar os resultados
         function renderResults(results) {
@@ -294,17 +318,16 @@ function loadResults() {
 
         // Função para exibir o modal de vídeo
         function showModal(videoUrl) {
-        const videoSource = document.getElementById('video-source');
-        const videoPlayer = document.getElementById('video-player');
-        videoSource.src = videoUrl;
-        videoPlayer.load(); // Carrega o novo vídeo
-        const videoModal = document.getElementById('video-modal');
-        videoModal.style.display = 'block';
+            const videoSource = document.getElementById('video-source');
+            const videoPlayer = document.getElementById('video-player');
+            videoSource.src = videoUrl;
+            videoPlayer.load(); // Carrega o novo vídeo
+            const videoModal = document.getElementById('video-modal');
+            videoModal.style.display = 'block';
 
-    // Verifica se o vídeo está nos favoritos
-    checkFavoriteStatus(videoUrl);
-}
-
+            // Verifica se o vídeo está nos favoritos
+            checkFavoriteStatus(videoUrl);
+        }
 
         // Função para fechar o modal de vídeo
         function closeModal() {
@@ -315,44 +338,57 @@ function loadResults() {
         }
 
         // Função para verificar se o vídeo está nos favoritos
-function checkFavoriteStatus(videoUrl) {
-    const user = firebase.auth().currentUser;
-    if (!user) {
-        return;
-    }
+        function checkFavoriteStatus(videoUrl) {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                return;
+            }
 
-    const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
+            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
 
-    favoriteRef.get().then((docSnapshot) => {
-        if (docSnapshot.exists) {
-            document.getElementById('favorite-button').classList.add('favorited');
-        } else {
-            document.getElementById('favorite-button').classList.remove('favorited');
+            favoriteRef.get().then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    document.getElementById('favorite-button').classList.add('favorited');
+                } else {
+                    document.getElementById('favorite-button').classList.remove('favorited');
+                }
+            }).catch((error) => {
+                console.error('Erro ao verificar o status do favorito:', error);
+            });
         }
-    }).catch((error) => {
-        console.error('Erro ao verificar o status do favorito:', error);
-    });
-}
 
-// Função para exibir o modal de vídeo
-function showModal(videoUrl) {
-    const videoSource = document.getElementById('video-source');
-    const videoPlayer = document.getElementById('video-player');
-    videoSource.src = videoUrl;
-    videoPlayer.load(); // Carrega o novo vídeo
-    const videoModal = document.getElementById('video-modal');
-    videoModal.style.display = 'block';
+        // Função para adicionar ou remover vídeo dos favoritos
+        function toggleFavorite(videoUrl) {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                console.error('Usuário não autenticado.');
+                return;
+            }
 
-    // Verifica se o vídeo está nos favoritos
-    checkFavoriteStatus(videoUrl);
-}
+            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
 
-// Adiciona manipulador de evento ao ícone de favoritos dentro do modal
-document.getElementById('favorite-button').addEventListener('click', function () {
-    const videoUrl = document.getElementById('video-source').getAttribute('src');
-    toggleFavorite(videoUrl);
-});
-
+            favoriteRef.get().then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    // Vídeo já está nos favoritos, então remove
+                    favoriteRef.delete().then(() => {
+                        console.log('Vídeo removido dos favoritos.');
+                        document.getElementById('favorite-button').classList.remove('favorited');
+                    }).catch((error) => {
+                        console.error('Erro ao remover dos favoritos:', error);
+                    });
+                } else {
+                    // Vídeo não está nos favoritos, então adiciona
+                    favoriteRef.set({}).then(() => {
+                        console.log('Vídeo adicionado aos favoritos.');
+                        document.getElementById('favorite-button').classList.add('favorited');
+                    }).catch((error) => {
+                        console.error('Erro ao adicionar aos favoritos:', error);
+                    });
+                }
+            }).catch((error) => {
+                console.error('Erro ao verificar o status do favorito:', error);
+            });
+        }
 
         // Aguarda o carregamento do DOM antes de chamar a função loadResults
         document.addEventListener('DOMContentLoaded', loadResults);
@@ -380,6 +416,14 @@ document.getElementById('favorite-button').addEventListener('click', function ()
             window.location.href = 'favorites.html';
         });
 
+        // Adiciona manipulador de evento ao ícone de logout
+        document.getElementById('logout-icon').addEventListener('click', function () {
+            firebase.auth().signOut().then(() => {
+                console.log('Usuário deslogado com sucesso.');
+            }).catch((error) => {
+                console.error('Erro ao deslogar:', error);
+            });
+        });
     </script>
 </body>
 
