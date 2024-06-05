@@ -180,7 +180,7 @@
     </div>
 
     <div class="footer">
-        <a href="details.html"><img src="images/home-icon.png" alt="Home"></a>
+        <a href="index.html"><img src="images/home-icon.png" alt="Home"></a>
         <a href="login.html"><img src="images/profile-icon.png" alt="Profile"></a>
         <a href="favorites.html"><img src="images/favorite-icon.png" alt="Favorites"></a>
     </div>
@@ -417,12 +417,19 @@ document.addEventListener("DOMContentLoaded", checkUserAuth);
         });
 
         // Adiciona manipulador de evento ao ícone de logout
-        document.getElementById('logout-icon').addEventListener('click', function () {
-            firebase.auth().signOut().then(() => {
-                console.log('Usuário deslogado com sucesso.');
-            }).catch((error) => {
-                console.error('Erro ao deslogar:', error);
-            });
+        document.addEventListener('DOMContentLoaded', function () {
+            const logoutIcon = document.getElementById('logout-icon');
+            if (logoutIcon) {
+                logoutIcon.addEventListener('click', function () {
+                    firebase.auth().signOut().then(() => {
+                        console.log('Usuário deslogado com sucesso.');
+                    }).catch((error) => {
+                        console.error('Erro ao deslogar:', error);
+                    });
+                });
+            } else {
+                console.error('Elemento logout-icon não encontrado.');
+            }
         });
     </script>
 </body>
