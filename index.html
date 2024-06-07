@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exibir Resultados</title>
     <link rel="stylesheet" href="stylesprincipal.css">
-    <!-- Import Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous">
+    <!-- Import Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Import Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
@@ -48,9 +48,9 @@
 
     <footer>
         <div class="footer-icons">
-            <img src="images/home-icon.png" alt="Home">
-            <img src="images/share-icon.png" alt="Compartilhar">
-            <img src="images/profile-icon.png" alt="Perfil">
+            <i class="material-icons">home</i>
+            <i class="material-icons">share</i>
+            <i class="material-icons">person</i>
         </div>
     </footer>
 
@@ -103,7 +103,7 @@
                         <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
                             <h3>${title}</h3>
                             <p class="description">${description}</p>
-                            <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star"></i>
+                            <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star material-icons">star</i>
                         </li>`;
                 });
             }).catch(error => console.error('Erro ao carregar os resultados:', error));
@@ -140,7 +140,7 @@
                     if (videoUrl) {
                         const mainVideoSource = document.getElementById('main-video-source');
                         mainVideoSource.src = videoUrl;
-                        const mainVideoPlayer = document.getElementById('main-video-player');
+                        const mainVideoVideoPlayer = document.getElementById('main-video-player');
                         mainVideoPlayer.load();
                         mainVideoPlayer.play();
                     } else {
@@ -153,3 +153,4 @@
 </body>
 
 </html>
+
