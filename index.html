@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="stylesprincipal.css">
     <!-- Import Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Import Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Import Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
@@ -25,33 +27,6 @@
             color: gold; /* Cor do ícone de favorito */
             cursor: pointer; /* Muda o cursor para indicar clicável */
         }
-
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        #search-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            outline: none;
-            display: flex;
-            align-items: center;
-        }
-
-        #search-input {
-            display: none;
-            margin-left: 10px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        #search-input.show {
-            display: block;
-        }
     </style>
 </head>
 
@@ -60,7 +35,7 @@
         <img src="images/logo.png" alt="Logo da empresa">
         <div class="search-container">
             <button id="search-button">
-                <i class="material-icons">search</i>
+                <i class="fas fa-search"></i>
             </button>
             <input type="text" id="search-input" placeholder="Pesquisar...">
             <p id="search-info"></p>
@@ -80,7 +55,7 @@
 
     <footer>
         <div class="footer-icons">
-            <i class="material-icons">home</i>
+            <i class="material-icons" id="home-icon">home</i>
             <i class="material-icons" id="share-icon">share</i>
             <i class="material-icons">person</i>
             <i class="material-icons star" id="favorite-icon">star</i>
@@ -118,7 +93,7 @@
         }
 
         // Função para carregar os vídeos do Firestore
-        function loadVideos(searchTerm = '') {
+        function loadVideos() {
             const resultList = document.getElementById('result-list');
             resultList.innerHTML = '';
 
@@ -132,14 +107,12 @@
                     const data = doc.data();
                     const { title, description, videoUrl, isFavorited } = data;
 
-                    if (title.toLowerCase().includes(searchTerm.toLowerCase()) || description.toLowerCase().includes(searchTerm.toLowerCase())) {
-                        resultList.innerHTML += `
-                            <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
-                                <h3>${title}</h3>
-                                <p class="description">${description}</p>
-                                <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star material-icons">star</i>
-                            </li>`;
-                    }
+                    resultList.innerHTML += `
+                        <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
+                            <h3>${title}</h3>
+                            <p class="description">${description}</p>
+                            <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star material-icons"></i>
+                        </li>`;
                 });
             }).catch(error => console.error('Erro ao carregar os resultados:', error));
         }
@@ -151,6 +124,7 @@
             const searchInput = document.getElementById('search-input');
             const favoriteIcon = document.getElementById('favorite-icon');
             const shareIcon = document.getElementById('share-icon');
+            const homeIcon = document.getElementById('home-icon'); // Adicione esta linha
 
             searchButton.addEventListener('click', function () {
                 searchInput.classList.toggle('show');
@@ -166,7 +140,7 @@
             const resultList = document.getElementById('result-list');
             resultList.addEventListener('click', function (event) {
                 const target = event.target;
-                if (target.classList.contains('star-icon')) {
+                if (target.classList.contains('fa-star')) {
                     const videoId = target.parentNode.getAttribute('data-video-id');
                     toggleFavorite(videoId);
                     // Altera a classe do ícone para refletir a ação de favoritar/desfavoritar
@@ -186,29 +160,36 @@
                 }
             });
 
+            // Adiciona evento de clique para redirecionar para a página inicial (index.html)
+            homeIcon.addEventListener('click', function () {
+                window.location.href = 'index.html';
+            });
+
             // Adiciona evento de clique para redirecionar para favoritos.html
             favoriteIcon.addEventListener('click', function () {
                 window.location.href = 'favoritos.html';
             });
 
-            // Adiciona evento de clique para compartilhar
+            // Adiciona evento de clique para compartilhar a aplicação
             shareIcon.addEventListener('click', function () {
                 if (navigator.share) {
                     navigator.share({
-                        title: 'Avisos e Eventos',
-                        text: 'Confira esta aplicação incrível!',
+                        title: 'Título da aplicação',
+                        text: 'Descrição da aplicação',
                         url: window.location.href
                     }).then(() => {
-                        console.log('Aplicação compartilhada com sucesso!');
+                        console.log('Aplicação compartilhada com sucesso.');
                     }).catch((error) => {
-                        console.error('Erro ao compartilhar:', error);
+                        console.error('Erro ao compartilhar a aplicação:', error);
                     });
                 } else {
-                    alert('A funcionalidade de compartilhamento não está disponível neste navegador.');
+                    alert('A funcionalidade de compartilhamento não é suportada neste navegador.');
                 }
             });
         });
+        
     </script>
 </body>
 
 </html>
+
