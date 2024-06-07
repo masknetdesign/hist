@@ -25,6 +25,33 @@
             color: gold; /* Cor do ícone de favorito */
             cursor: pointer; /* Muda o cursor para indicar clicável */
         }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-input {
+            display: none;
+            margin-left: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #search-input.show {
+            display: block;
+        }
     </style>
 </head>
 
@@ -33,7 +60,7 @@
         <img src="images/logo.png" alt="Logo da empresa">
         <div class="search-container">
             <button id="search-button">
-                <i class="fas fa-search"></i>
+                <i class="material-icons">search</i>
             </button>
             <input type="text" id="search-input" placeholder="Pesquisar...">
             <p id="search-info"></p>
@@ -54,7 +81,7 @@
     <footer>
         <div class="footer-icons">
             <i class="material-icons">home</i>
-            <i class="material-icons">share</i>
+            <i class="material-icons" id="share-icon">share</i>
             <i class="material-icons">person</i>
             <i class="material-icons star" id="favorite-icon">star</i>
         </div>
@@ -91,7 +118,7 @@
         }
 
         // Função para carregar os vídeos do Firestore
-        function loadVideos() {
+        function loadVideos(searchTerm = '') {
             const resultList = document.getElementById('result-list');
             resultList.innerHTML = '';
 
@@ -105,12 +132,14 @@
                     const data = doc.data();
                     const { title, description, videoUrl, isFavorited } = data;
 
-                    resultList.innerHTML += `
-                        <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
-                            <h3>${title}</h3>
-                            <p class="description">${description}</p>
-                            <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star material-icons">star</i>
-                        </li>`;
+                    if (title.toLowerCase().includes(searchTerm.toLowerCase()) || description.toLowerCase().includes(searchTerm.toLowerCase())) {
+                        resultList.innerHTML += `
+                            <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
+                                <h3>${title}</h3>
+                                <p class="description">${description}</p>
+                                <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star material-icons">star</i>
+                            </li>`;
+                    }
                 });
             }).catch(error => console.error('Erro ao carregar os resultados:', error));
         }
@@ -121,6 +150,7 @@
             const searchButton = document.getElementById('search-button');
             const searchInput = document.getElementById('search-input');
             const favoriteIcon = document.getElementById('favorite-icon');
+            const shareIcon = document.getElementById('share-icon');
 
             searchButton.addEventListener('click', function () {
                 searchInput.classList.toggle('show');
@@ -159,6 +189,23 @@
             // Adiciona evento de clique para redirecionar para favoritos.html
             favoriteIcon.addEventListener('click', function () {
                 window.location.href = 'favoritos.html';
+            });
+
+            // Adiciona evento de clique para compartilhar
+            shareIcon.addEventListener('click', function () {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Avisos e Eventos',
+                        text: 'Confira esta aplicação incrível!',
+                        url: window.location.href
+                    }).then(() => {
+                        console.log('Aplicação compartilhada com sucesso!');
+                    }).catch((error) => {
+                        console.error('Erro ao compartilhar:', error);
+                    });
+                } else {
+                    alert('A funcionalidade de compartilhamento não está disponível neste navegador.');
+                }
             });
         });
     </script>
