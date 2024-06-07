@@ -1,0 +1,145 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+video {
+    position: fixed;
+    top: 75px; /* Ajuste conforme necessário para alinhar com o header */
+    left: 0;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    z-index: 1000; /* Garante que o vídeo esteja acima do restante do conteúdo */
+}
+
+main {
+    padding-top: calc(70px + 20px + 20px); /* Altura do header + margem do player + margem inferior do player */
+    margin-top: 80px; /* Altura do header + margem do player */
+}
+
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: fixed; /* torna o header fixo */
+    top: 0; /* fixa o header no topo */
+    left: 0; /* alinha o header à esquerda */
+    height: 50px;
+    width: 100%; /* define a largura do header igual à largura da tela */
+    z-index: 1000; /* garante que o header esteja acima de outros elementos */
+}
+
+header img {
+    width: 24px; /* Ajuste o tamanho conforme necessário */
+    height: auto; /* Para manter a proporção da imagem */
+}
+
+
+.search-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+}
+
+#search-input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    display: none;
+    transition: width 0.3s, opacity 0.3s;
+    opacity: 0;
+    width: 0;
+}
+
+#search-input.show {
+    display: inline-block;
+    opacity: 1;
+    width: 150px;
+}
+
+#search-button {
+    background-color: #fff;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 10px;
+}
+
+#search-button img {
+    height: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: 60px; /* adiciona um espaço para o conteúdo abaixo do header fixo */
+}
+
+video {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.list-item {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.list-item:hover {
+    background-color: #ececec;
+}
+
+.description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4; /* Limita a 4 linhas */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 5.2em; /* Ajuste conforme necessário */
+    line-height: 1.3em; /* Ajuste conforme necessário */
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.footer-icons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.footer-icons img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    filter: invert(40%) sepia(100%) saturate(400%) hue-rotate(330deg);
+}
