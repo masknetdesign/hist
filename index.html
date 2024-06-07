@@ -7,8 +7,6 @@
     <title>Exibir Resultados</title>
     <link rel="stylesheet" href="stylesprincipal.css">
     <!-- Import Material Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Import Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
@@ -22,6 +20,11 @@
         .star-icon.fas {
             color: gold; /* Cor da estrela quando favoritado */
         }
+
+        .material-icons.star {
+            color: gold; /* Cor do ícone de favorito */
+            cursor: pointer; /* Muda o cursor para indicar clicável */
+        }
     </style>
 </head>
 
@@ -32,7 +35,6 @@
             <button id="search-button">
                 <i class="fas fa-search"></i>
             </button>
-
             <input type="text" id="search-input" placeholder="Pesquisar...">
             <p id="search-info"></p>
         </div>
@@ -54,6 +56,7 @@
             <i class="material-icons">home</i>
             <i class="material-icons">share</i>
             <i class="material-icons">person</i>
+            <i class="material-icons star" id="favorite-icon">star</i>
         </div>
     </footer>
 
@@ -117,6 +120,7 @@
 
             const searchButton = document.getElementById('search-button');
             const searchInput = document.getElementById('search-input');
+            const favoriteIcon = document.getElementById('favorite-icon');
 
             searchButton.addEventListener('click', function () {
                 searchInput.classList.toggle('show');
@@ -143,7 +147,7 @@
                     if (videoUrl) {
                         const mainVideoSource = document.getElementById('main-video-source');
                         mainVideoSource.src = videoUrl;
-                        const mainVideoVideoPlayer = document.getElementById('main-video-player');
+                        const mainVideoPlayer = document.getElementById('main-video-player');
                         mainVideoPlayer.load();
                         mainVideoPlayer.play();
                     } else {
@@ -151,9 +155,13 @@
                     }
                 }
             });
+
+            // Adiciona evento de clique para redirecionar para favoritos.html
+            favoriteIcon.addEventListener('click', function () {
+                window.location.href = 'favoritos.html';
+            });
         });
     </script>
 </body>
 
 </html>
-
