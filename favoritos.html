@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vídeos Favoritados</title>
+    <link rel="stylesheet" href="stylesfavoritos.css">
+    <!-- Import Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>Vídeos Favoritados</h1>
+    </header>
+    <main>
+        <div class="container">
+            <ul class="list" id="favorite-videos-list">
+                <!-- Apenas o título dos vídeos será carregado aqui dinamicamente -->
+            </ul>
+        </div>
+    </main>
+    <video controls id="main-video-player" style="display: none;">
+        <source id="main-video-source" src="" type="video/mp4">
+        Seu navegador não suporta o elemento de vídeo.
+    </video>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
+            authDomain: "avisoseeventos.firebaseapp.com",
+            projectId: "avisoseeventos",
+            storageBucket: "avisoseeventos.appspot.com",
+            messagingSenderId: "247706769451",
+            appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const favoriteVideosList = document.getElementById('favorite-videos-list');
+            const mainVideoSource = document.getElementById('main-video-source');
+            const mainVideoPlayer = document.getElementById('main-video-player');
+
+            // Carrega os títulos dos vídeos favoritados
+            function loadFavoriteVideos() {
+                favoriteVideosList.innerHTML = '';
+
+                firestore.collection('videos').where('isFavorited', '==', true).get().then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        favoriteVideosList.innerHTML = '<li>Nenhum vídeo favoritado encontrado.</li>';
+                        return;
+                    }
+
+                    querySnapshot.forEach(doc => {
+                        const videoData = doc.data();
+                        favoriteVideosList.innerHTML += `
+                            <li class="list-item" data-video-id="${doc.id}">
+                                <h3>${videoData.title}</h3>
+                            </li>`;
+                    });
+                }).catch(error => {
+                    console.error('Erro ao carregar vídeos favoritados:', error);
+                });
+            }
+
+            // Adiciona evento de clique para carregar o vídeo ao clicar no item da lista
+            favoriteVideosList.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.classList.contains('list-item')) {
+                    const videoId = target.getAttribute('data-video-id');
+                    if (videoId) {
+                        firestore.collection('videos').doc(videoId).get().then(doc => {
+                            if (doc.exists) {
+                                const videoData = doc.data();
+                                mainVideoSource.src = videoData.videoUrl;
+                                mainVideoPlayer.style.display = 'block';
+                                mainVideoPlayer.load();
+                                mainVideoPlayer.play();
+                            } else {
+                                alert('Vídeo não encontrado.');
+                            }
+                        }).catch(error => {
+                            console.error('Erro ao carregar vídeo:', error);
+                        });
+                    }
+                }
+            });
+
+            // Carrega os vídeos favoritados ao carregar a página
+            loadFavoriteVideos();
+        });
+    </script>
+</body>
+
+</html>
