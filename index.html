@@ -5,206 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exibir Resultados</title>
+    <link rel="stylesheet" href="stylesprincipal.css">
+    <!-- Import Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Import Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+        .star-icon {
+            color: #ccc; /* Cor padrão da estrela */
         }
 
-        .container {
-            flex: 1;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 45px;
-        }
-
-        .header {
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            background-color: #f1f1f1;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .header .logo {
-            height: 40px;
-        }
-
-        .header .logout-icon img,
-        .header .search-icon img,
-        .header .profile-icon img {
-            height: 20px;
-        }
-
-        .list {
-            list-style-type: none;
-            padding: 0;
-            margin-top: 50px;
-        }
-
-        .list-item {
-            background-color: #f9f9f9;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-
-        .list-item:hover {
-            background-color: #ececec;
-        }
-
-        .list-item span {
-            margin-left: 10px;
-        }
-
-        .list-item img {
-            max-width: 50px;
-            border-radius: 5px;
-        }
-
-        #video-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        #video-modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        #video-modal video {
-            max-width: 100%;
-            border-radius: 10px;
-        }
-
-        #close-button {
-            margin-top: 10px;
-            padding: 8px 16px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .footer {
-            height: 50px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background-color: #f1f1f1;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .footer img {
-            height: 32px;
-        }
-
-        .search-input {
-            display: none;
-            height: 30px;
-            margin-left: 10px;
-            padding: 0 10px;
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .favorite-icon-modal img {
-            height: 20px;
-        }
-
-        #favorite-button img {
-            max-width: 24px;
-        }
-
-        .favorited img {
-            filter: invert(84%) sepia(95%) saturate(2136%) hue-rotate(1deg) brightness(106%) contrast(104%);
+        .star-icon.fas {
+            color: gold; /* Cor da estrela quando favoritado */
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <img src="images/logo.png" alt="Logo" class="logo">
+    <header>
+        <img src="images/logo.png" alt="Logo da empresa">
         <div class="search-container">
-            <input type="text" id="search-input" class="search-input" placeholder="Buscar...">
-            <div class="search-icon">
-                <img src="images/search-icon.png" alt="Search Icon" id="search-icon">
-            </div>
+            <button id="search-button">
+                <img src="images/search-icon.png" alt="Pesquisar" />
+            </button>
+            <input type="text" id="search-input" placeholder="Pesquisar...">
+            <p id="search-info"></p>
         </div>
-        <div class="logout-icon" id="logout-icon">
-            <img src="images/logout-icon.png" alt="Logout Icon">
-        </div>
-        <div class="profile-icon">
-            <img src="images/profile-icon.png" alt="Profile Icon">
-        </div>
-    </div>
-
-    <div class="container">
-        <h1>Histórias Narradas</h1>
-        <ul class="list" id="result-list">
-            <!-- Resultados serão carregados aqui dinamicamente -->
-        </ul>
-    </div>
-
-    <div class="footer">
-        <a href="index.html"><img src="images/home-icon.png" alt="Home"></a>
-        <a href="login.html"><img src="images/profile-icon.png" alt="Profile"></a>
-        <a href="favorites.html"><img src="images/favorite-icon.png" alt="Favorites"></a>
-    </div>
-
-    <div id="video-modal">
-        <div id="video-modal-content">
-            <video controls id="video-player">
-                <source id="video-source" src="" type="video/mp4">
+    </header>
+    <main>
+        <div class="container">
+            <video controls id="main-video-player">
+                <source id="main-video-source" src="" type="video/mp4">
                 Seu navegador não suporta o elemento de vídeo.
             </video>
-            <div class="modal-actions">
-                <button id="favorite-button" class="favorite-button">
-                    <img src="images/favorite-icon.png" alt="Favorite Icon">
-                </button>
-                <button id="close-button">Fechar</button>
-            </div>
+            <ul class="list" id="result-list">
+                <!-- Resultados serão carregados aqui dinamicamente -->
+            </ul>
         </div>
-    </div>
+    </main>
 
-    <!-- Scripts -->
-    <!-- Importando Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+    <footer>
+        <div class="footer-icons">
+            <img src="images/home-icon.png" alt="Home">
+            <img src="images/share-icon.png" alt="Compartilhar">
+            <img src="images/profile-icon.png" alt="Perfil">
+        </div>
+    </footer>
 
     <script>
         // Configuração do Firebase
@@ -217,219 +65,89 @@
             appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
         };
 
-        // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
 
-        let allResults = [];
-
-        // Função para verificar se o usuário está autenticado
-function checkUserAuth() {
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            // O usuário está autenticado, permaneça na página
-            console.log("Usuário autenticado:", user);
-        } else {
-            // O usuário não está autenticado, redirecione para a página de login
-            console.log("Usuário não autenticado. Redirecionando para a página de login...");
-            window.location.href = "login.html";
+        // Função para favoritar/desfavoritar um vídeo
+        function toggleFavorite(videoId) {
+            const videoRef = firestore.collection('videos').doc(videoId.toString());
+            videoRef.get().then(doc => {
+                if (doc.exists) {
+                    const currentStatus = doc.data().isFavorited || false;
+                    return videoRef.update({ isFavorited: !currentStatus });
+                }
+            }).then(() => {
+                // Atualiza a lista após alternar o estado de favorito
+                loadVideos();
+            }).catch(error => {
+                console.error('Erro ao alternar estado de favorito:', error);
+            });
         }
 
-        // Adiciona manipulador de evento ao ícone de logout
-        document.getElementById('logout-icon').addEventListener('click', function () {
-            firebase.auth().signOut().then(() => {
-                console.log('Usuário deslogado com sucesso.');
-            }).catch((error) => {
-                console.error('Erro ao deslogar:', error);
-            });
-        });
-    });
-}
-
-// Executa a verificação de autenticação do usuário ao carregar o DOM
-document.addEventListener("DOMContentLoaded", checkUserAuth);
-
-
-        // Executa a verificação de autenticação do usuário ao carregar o DOM
-        document.addEventListener("DOMContentLoaded", checkUserAuth);
-
-        // Função para carregar os resultados do Firestore
-        function loadResults() {
+        // Função para carregar os vídeos do Firestore
+        function loadVideos() {
             const resultList = document.getElementById('result-list');
             resultList.innerHTML = '';
 
-            // Carrega os documentos da coleção 'entries'
-            firestore.collection('entries').get().then((querySnapshot) => {
+            firestore.collection('videos').get().then(querySnapshot => {
                 if (querySnapshot.empty) {
                     resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
                     return;
                 }
-                allResults = querySnapshot.docs.map(doc => doc.data());
 
-                renderResults(allResults);
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const { title, description, videoUrl, isFavorited } = data;
 
-                // Adiciona manipulador de evento ao ícone de favoritos dentro do modal
-                document.getElementById('favorite-button').addEventListener('click', function () {
-                    const videoUrl = document.getElementById('video-source').getAttribute('src');
-                    toggleFavorite(videoUrl);
+                    resultList.innerHTML += `
+                        <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
+                            <h3>${title}</h3>
+                            <p class="description">${description}</p>
+                            <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star"></i>
+                        </li>`;
                 });
-            }).catch((error) => {
-                console.error('Erro ao carregar os resultados:', error);
-            });
+            }).catch(error => console.error('Erro ao carregar os resultados:', error));
         }
 
-        // Função para renderizar os resultados
-        function renderResults(results) {
-            const resultList = document.getElementById('result-list');
-            resultList.innerHTML = '';
-            results.forEach(data => {
-                const title = data.title;
+        document.addEventListener("DOMContentLoaded", function () {
+            loadVideos();
 
-                let videoUrl = '';
-                if (data.videoUrls && data.videoUrls.length > 0) {
-                    videoUrl = data.videoUrls[0];
-                }
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
 
-                let logoUrl = '';
-                if (data.logoUrl) {
-                    logoUrl = data.logoUrl;
-                }
-
-                resultList.innerHTML += `
-                    <li class="list-item" data-video-url="${videoUrl}">
-                        <img src="${logoUrl}" alt="Logo">
-                        <span>${title}</span>
-                    </li>`;
+            searchButton.addEventListener('click', function () {
+                searchInput.classList.toggle('show');
+                searchInput.focus();
             });
 
-            // Adiciona manipuladores de eventos aos itens da lista
-            const listItems = document.querySelectorAll('.list-item');
-            listItems.forEach(item => {
-                item.addEventListener('click', function () {
-                    const videoUrl = this.getAttribute('data-video-url');
+            searchInput.addEventListener('input', function () {
+                const searchTerm = searchInput.value;
+                loadVideos(searchTerm);
+            });
+
+            // Adiciona evento de clique para favoritar/desfavoritar
+            const resultList = document.getElementById('result-list');
+            resultList.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.classList.contains('star-icon')) {
+                    const videoId = target.parentNode.getAttribute('data-video-id');
+                    toggleFavorite(videoId);
+                    // Altera a classe do ícone para refletir a ação de favoritar/desfavoritar
+                    target.classList.toggle('fas');
+                    target.classList.toggle('far');
+                } else if (target.classList.contains('list-item')) {
+                    const videoUrl = target.getAttribute('data-video-url');
                     if (videoUrl) {
-                        showModal(videoUrl);
+                        const mainVideoSource = document.getElementById('main-video-source');
+                        mainVideoSource.src = videoUrl;
+                        const mainVideoPlayer = document.getElementById('main-video-player');
+                        mainVideoPlayer.load();
+                        mainVideoPlayer.play();
                     } else {
                         alert('URL do vídeo não encontrada.');
                     }
-                });
-            });
-        }
-
-        // Função para exibir o modal de vídeo
-        function showModal(videoUrl) {
-            const videoSource = document.getElementById('video-source');
-            const videoPlayer = document.getElementById('video-player');
-            videoSource.src = videoUrl;
-            videoPlayer.load(); // Carrega o novo vídeo
-            const videoModal = document.getElementById('video-modal');
-            videoModal.style.display = 'block';
-
-            // Verifica se o vídeo está nos favoritos
-            checkFavoriteStatus(videoUrl);
-        }
-
-        // Função para fechar o modal de vídeo
-        function closeModal() {
-            const videoModal = document.getElementById('video-modal');
-            videoModal.style.display = 'none';
-            const videoSource = document.getElementById('video-source');
-            videoSource.src = '';
-        }
-
-        // Função para verificar se o vídeo está nos favoritos
-        function checkFavoriteStatus(videoUrl) {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                return;
-            }
-
-            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
-
-            favoriteRef.get().then((docSnapshot) => {
-                if (docSnapshot.exists) {
-                    document.getElementById('favorite-button').classList.add('favorited');
-                } else {
-                    document.getElementById('favorite-button').classList.remove('favorited');
                 }
-            }).catch((error) => {
-                console.error('Erro ao verificar o status do favorito:', error);
             });
-        }
-
-        // Função para adicionar ou remover vídeo dos favoritos
-        function toggleFavorite(videoUrl) {
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                console.error('Usuário não autenticado.');
-                return;
-            }
-
-            const favoriteRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoUrl);
-
-            favoriteRef.get().then((docSnapshot) => {
-                if (docSnapshot.exists) {
-                    // Vídeo já está nos favoritos, então remove
-                    favoriteRef.delete().then(() => {
-                        console.log('Vídeo removido dos favoritos.');
-                        document.getElementById('favorite-button').classList.remove('favorited');
-                    }).catch((error) => {
-                        console.error('Erro ao remover dos favoritos:', error);
-                    });
-                } else {
-                    // Vídeo não está nos favoritos, então adiciona
-                    favoriteRef.set({}).then(() => {
-                        console.log('Vídeo adicionado aos favoritos.');
-                        document.getElementById('favorite-button').classList.add('favorited');
-                    }).catch((error) => {
-                        console.error('Erro ao adicionar aos favoritos:', error);
-                    });
-                }
-            }).catch((error) => {
-                console.error('Erro ao verificar o status do favorito:', error);
-            });
-        }
-
-        // Aguarda o carregamento do DOM antes de chamar a função loadResults
-        document.addEventListener('DOMContentLoaded', loadResults);
-
-        // Adiciona manipulador de evento ao botão de fechar
-        document.getElementById('close-button').addEventListener('click', closeModal);
-        // Adiciona manipulador de evento ao ícone de busca
-        document.getElementById('search-icon').addEventListener('click', function () {
-            const searchTerm = prompt('Digite o termo de busca:');
-            if (searchTerm) {
-                const filteredResults = allResults.filter(data =>
-                    data.title.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-                renderResults(filteredResults);
-            }
-        });
-
-        // Adiciona manipulador de evento ao ícone de perfil
-        document.getElementById('profile-icon').addEventListener('click', function () {
-            window.location.href = 'login.html';
-        });
-
-        // Adiciona manipulador de evento ao ícone de favoritos
-        document.getElementById('favorite-icon').addEventListener('click', function () {
-            window.location.href = 'favorites.html';
-        });
-
-        // Adiciona manipulador de evento ao ícone de logout
-        document.addEventListener('DOMContentLoaded', function () {
-            const logoutIcon = document.getElementById('logout-icon');
-            if (logoutIcon) {
-                logoutIcon.addEventListener('click', function () {
-                    firebase.auth().signOut().then(() => {
-                        console.log('Usuário deslogado com sucesso.');
-                    }).catch((error) => {
-                        console.error('Erro ao deslogar:', error);
-                    });
-                });
-            } else {
-                console.error('Elemento logout-icon não encontrado.');
-            }
         });
     </script>
 </body>
