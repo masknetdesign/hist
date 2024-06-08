@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="stylesperfil.css">
+    <!-- Import Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
+</head>
+
+<body>
+    <div class="profile-container">
+        <h1>Perfil do Usuário</h1>
+        <p id="user-name"></p>
+        <button id="logout-button">Sair</button>
+    </div>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkrBLKuklZgPm1nz2G997ULiYycZMb9F8",
+            authDomain: "avisoseeventos.firebaseapp.com",
+            projectId: "avisoseeventos",
+            storageBucket: "avisoseeventos.appspot.com",
+            messagingSenderId: "247706769451",
+            appId: "1:247706769451:web:ce31cd9d0ca22cd267b26e"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const userNameElement = document.getElementById('user-name');
+            const logoutButton = document.getElementById('logout-button');
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    userNameElement.textContent = `Olá, ${user.displayName || user.email}`;
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+
+            logoutButton.addEventListener('click', function () {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';  // Navegar para a página index.html
+                }).catch(error => {
+                    console.error('Erro ao sair:', error);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
