@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
+    <!-- Import Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
@@ -41,11 +43,21 @@
 
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
+        const auth = firebase.auth();
 
         document.addEventListener("DOMContentLoaded", function () {
             const favoriteVideosList = document.getElementById('favorite-videos-list');
             const mainVideoSource = document.getElementById('main-video-source');
             const mainVideoPlayer = document.getElementById('main-video-player');
+
+            // Verifica se o usuário está autenticado
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loadFavoriteVideos();
+                } else {
+                    window.location.href = 'index.html';
+                }
+            });
 
             // Carrega os títulos dos vídeos favoritados
             function loadFavoriteVideos() {
@@ -62,6 +74,7 @@
                         favoriteVideosList.innerHTML += `
                             <li class="list-item" data-video-id="${doc.id}">
                                 <h3>${videoData.title}</h3>
+                                <i class="material-icons delete-icon" data-video-id="${doc.id}">delete</i>
                             </li>`;
                     });
                 }).catch(error => {
@@ -69,11 +82,12 @@
                 });
             }
 
-            // Adiciona evento de clique para carregar o vídeo ao clicar no item da lista
+            // Adiciona evento de clique para carregar o vídeo ao clicar no item da lista ou excluir o vídeo ao clicar no ícone de exclusão
             favoriteVideosList.addEventListener('click', function (event) {
                 const target = event.target;
-                if (target.classList.contains('list-item')) {
-                    const videoId = target.getAttribute('data-video-id');
+                const videoId = target.getAttribute('data-video-id');
+
+                if (target.classList.contains('list-item') && !target.classList.contains('delete-icon')) {
                     if (videoId) {
                         firestore.collection('videos').doc(videoId).get().then(doc => {
                             if (doc.exists) {
@@ -89,11 +103,19 @@
                             console.error('Erro ao carregar vídeo:', error);
                         });
                     }
+                } else if (target.classList.contains('delete-icon')) {
+                    removeFavoriteVideo(videoId);
                 }
             });
 
-            // Carrega os vídeos favoritados ao carregar a página
-            loadFavoriteVideos();
+            // Função para remover vídeo dos favoritos
+            function removeFavoriteVideo(videoId) {
+                firestore.collection('videos').doc(videoId).update({ isFavorited: false }).then(() => {
+                    loadFavoriteVideos();
+                }).catch(error => {
+                    console.error('Erro ao remover vídeo dos favoritos:', error);
+                });
+            }
         });
     </script>
 </body>
