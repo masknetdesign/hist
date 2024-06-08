@@ -53,34 +53,44 @@
             // Verifica se o usuário está autenticado
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    loadFavoriteVideos();
+                    loadFavoriteVideos(user.uid); // Passa o UID do usuário autenticado
                 } else {
                     window.location.href = 'index.html';
                 }
             });
 
-            // Carrega os títulos dos vídeos favoritados
-            function loadFavoriteVideos() {
-                favoriteVideosList.innerHTML = '';
+            // Carrega os títulos dos vídeos favoritados pelo usuário autenticado
+function loadFavoriteVideos(userId) {
+    favoriteVideosList.innerHTML = '';
 
-                firestore.collection('videos').where('isFavorited', '==', true).get().then(querySnapshot => {
-                    if (querySnapshot.empty) {
-                        favoriteVideosList.innerHTML = '<li>Nenhum vídeo favoritado encontrado.</li>';
-                        return;
-                    }
+    firestore.collection('users').doc(userId).collection('favorites').where('isFavorited', '==', true).get().then(querySnapshot => {
+        if (querySnapshot.empty) {
+            favoriteVideosList.innerHTML = '<li>Nenhum vídeo favoritado encontrado.</li>';
+            return;
+        }
 
-                    querySnapshot.forEach(doc => {
-                        const videoData = doc.data();
-                        favoriteVideosList.innerHTML += `
-                            <li class="list-item" data-video-id="${doc.id}">
-                                <h3>${videoData.title}</h3>
-                                <i class="material-icons delete-icon" data-video-id="${doc.id}">delete</i>
-                            </li>`;
-                    });
-                }).catch(error => {
-                    console.error('Erro ao carregar vídeos favoritados:', error);
-                });
-            }
+        querySnapshot.forEach(doc => {
+            const videoData = doc.data();
+            firestore.collection('videos').doc(doc.id).get().then(videoDoc => {
+                if (videoDoc.exists) {
+                    const videoInfo = videoDoc.data();
+                    favoriteVideosList.innerHTML += `
+                        <li class="list-item" data-video-id="${doc.id}">
+                            <h3>${videoInfo.title}</h3>
+                            <i class="material-icons delete-icon" data-video-id="${doc.id}">delete</i>
+                        </li>`;
+                } else {
+                    console.error('Vídeo não encontrado:', doc.id);
+                }
+            }).catch(error => {
+                console.error('Erro ao carregar vídeo:', error);
+            });
+        });
+    }).catch(error => {
+        console.error('Erro ao carregar vídeos favoritados:', error);
+    });
+}
+
 
             // Adiciona evento de clique para carregar o vídeo ao clicar no item da lista ou excluir o vídeo ao clicar no ícone de exclusão
             favoriteVideosList.addEventListener('click', function (event) {
@@ -110,8 +120,8 @@
 
             // Função para remover vídeo dos favoritos
             function removeFavoriteVideo(videoId) {
-                firestore.collection('videos').doc(videoId).update({ isFavorited: false }).then(() => {
-                    loadFavoriteVideos();
+                firestore.collection('users').doc(auth.currentUser.uid).collection('favorites').doc(videoId).update({ isFavorited: false }).then(() => {
+                    loadFavoriteVideos(auth.currentUser.uid);
                 }).catch(error => {
                     console.error('Erro ao remover vídeo dos favoritos:', error);
                 });
