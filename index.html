@@ -12,13 +12,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.0/firebase-auth.js"></script>
-    
     <style>
         .star-icon {
             color: #ccc; /* Cor padrão da estrela */
         }
 
-        .star-icon.fas {
+        .star-icon.favorited {
             color: gold; /* Cor da estrela quando favoritado */
         }
 
@@ -89,15 +88,12 @@
         function toggleFavorite(videoId) {
             const user = auth.currentUser;
             if (user) {
-                const videoRef = firestore.collection('videos').doc(videoId.toString());
+                const videoRef = firestore.collection('users').doc(user.uid).collection('favorites').doc(videoId.toString());
                 videoRef.get().then(doc => {
-                    if (doc.exists) {
-                        const currentStatus = doc.data().isFavorited || false;
-                        return videoRef.update({ isFavorited: !currentStatus });
-                    }
+                    const favoriteStatus = doc.exists ? doc.data().isFavorited : false;
+                    return videoRef.set({ isFavorited: !favoriteStatus });
                 }).then(() => {
-                    // Atualiza a lista após alternar o estado de favorito
-                    loadVideos();
+                    loadVideos(document.getElementById('search-input').value); // Recarrega os vídeos para atualizar o estado dos ícones
                 }).catch(error => {
                     console.error('Erro ao alternar estado de favorito:', error);
                 });
@@ -116,24 +112,32 @@
                 query = query.where('title', '>=', searchTerm).where('title', '<=', searchTerm + '\uf8ff');
             }
 
-            query.get().then(querySnapshot => {
-                if (querySnapshot.empty) {
-                    resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
-                    return;
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    query.get().then(querySnapshot => {
+                        if (querySnapshot.empty) {
+                            resultList.innerHTML = '<li>Nenhum resultado encontrado.</li>';
+                            return;
+                        }
+
+                        querySnapshot.forEach(doc => {
+                            const data = doc.data();
+                            const { title, description, videoUrl } = data;
+
+                            firestore.collection('users').doc(user.uid).collection('favorites').doc(doc.id).get().then(favoriteDoc => {
+                                const isFavorited = favoriteDoc.exists ? favoriteDoc.data().isFavorited : false;
+
+                                resultList.innerHTML += `
+                                    <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
+                                        <h3>${title}</h3>
+                                        <p class="description">${description}</p>
+                                        <i class="star-icon material-icons ${isFavorited ? 'favorited' : ''}">star</i>
+                                    </li>`;
+                            });
+                        });
+                    }).catch(error => console.error('Erro ao carregar os resultados:', error));
                 }
-
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const { title, description, videoUrl, isFavorited } = data;
-
-                    resultList.innerHTML += `
-                        <li class="list-item" data-video-url="${videoUrl}" data-video-id="${doc.id}">
-                            <h3>${title}</h3>
-                            <p class="description">${description}</p>
-                            <i class="star-icon ${isFavorited ? 'fas' : 'far'} fa-star material-icons">star</i>
-                        </li>`;
-                });
-            }).catch(error => console.error('Erro ao carregar os resultados:', error));
+            });
         }
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -164,8 +168,7 @@
                     const videoId = target.parentNode.getAttribute('data-video-id');
                     toggleFavorite(videoId);
                     // Altera a classe do ícone para refletir a ação de favoritar/desfavoritar
-                    target.classList.toggle('fas');
-                    target.classList.toggle('far');
+                    target.classList.toggle('favorited');
                 } else if (target.classList.contains('list-item')) {
                     const videoUrl = target.getAttribute('data-video-url');
                     if (videoUrl) {
@@ -178,11 +181,6 @@
                         alert('URL do vídeo não encontrada.');
                     }
                 }
-            });
-
-            // Adiciona evento de clique para redirecionar para favoritos.html
-            favoriteIcon.addEventListener('click', function () {
-                window.location.href = 'favoritos.html';
             });
 
             // Adiciona evento de clique para redirecionar para index.html
@@ -210,6 +208,12 @@
             profileIcon.addEventListener('click', function () {
                 window.location.href = 'perfil.html';
             });
+
+            // Adiciona evento de clique para redirecionar para a página de favoritos
+            favoriteIcon.addEventListener('click', function () {
+                window.location.href = 'favoritos.html';
+            });
+
         });
     </script>
 </body>
